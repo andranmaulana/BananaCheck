@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Inferensi berjalan di browser (onnxruntime-web dari jsDelivr), tidak ada server backend -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' blob: data:; connect-src 'self' blob: data: https://cdn.jsdelivr.net; worker-src 'self' blob: https://cdn.jsdelivr.net; media-src 'self' blob:; object-src 'none'; base-uri 'self'">
+<meta name="theme-color" content="#FFD93D">
+<meta name="description" content="BananaCheck — AI Banana Ripeness Detector. Deteksi pisang matang dan belum matang dengan computer vision.">
+<title>BananaCheck — AI Banana Ripeness Detector</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Poppins:wght@400;500;600;800&display=swap">
+<link rel="stylesheet" href="style.css">
+
+<!-- Three.js (versi dikunci) dimuat sebagai ES module -->
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort.webgpu.min.js" defer></script>
+<script src="script.js" defer></script>
+</head>
+<body>
+
+<header class="nav-wrap">
+  <nav class="nav wrap" aria-label="Navigasi utama">
+    <a class="logo" href="#beranda" aria-label="BananaCheck beranda">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M10 20c4 22 28 34 48 16 2-2-1-4-4-2C38 48 20 40 16 18c-1-5-7-3-6 2Z" fill="#FFD93D" stroke="#4A3200" stroke-width="3" stroke-linejoin="round"/></svg>
+      BananaCheck
+    </a>
+    <button class="burger" id="burger" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
+    <ul class="menu" id="menu">
+      <li><a href="#beranda">Beranda</a></li>
+      <li><a href="#cara-kerja">Cara Kerja</a></li>
+      <li><a href="#fitur">Fitur</a></li>
+      <li><a href="#tentang">Tentang</a></li>
+      <li><a class="btn primary small" href="#deteksi">Coba Deteksi</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero wrap" id="beranda">
+    <div class="hero-text">
+      <span class="script">AI banana ripeness detector</span>
+      <h1>Kenali Kematangan Pisang dengan AI</h1>
+      <p>Deteksi pisang matang dan belum matang dengan teknologi computer vision secara praktis dan mudah.</p>
+      <div class="btn-row">
+        <a class="btn primary" href="#deteksi">Coba Deteksi</a>
+        <a class="btn ghost" href="#cara-kerja">Pelajari Cara Kerja</a>
+      </div>
+    </div>
+
+    <div class="showcase" aria-label="Model pisang 3D">
+      <span class="watermark" aria-hidden="true">banana</span>
+      <figure class="model-card">
+        <div class="viewer" data-model="banana_ripe.glb" data-name="pisang matang">
+          <div class="v-status" role="status">Memuat model…</div>
+        </div>
+        <figcaption><span class="chip ripe">RIPE</span><small>Pisang Matang</small></figcaption>
+      </figure>
+      <figure class="model-card">
+        <div class="viewer" data-model="banana_unripe.glb" data-name="pisang belum matang">
+          <div class="v-status" role="status">Memuat model…</div>
+        </div>
+        <figcaption><span class="chip unripe">UNRIPE</span><small>Pisang Belum Matang</small></figcaption>
+      </figure>
+      <p class="tip">Geser model untuk memutar</p>
+    </div>
+  </section>
+
+  <!-- CARA KERJA -->
+  <section class="section wrap" id="cara-kerja">
+    <span class="script">cara kerja</span>
+    <h2>Tiga langkah, satu foto</h2>
+    <div class="grid three">
+      <article class="card">
+        <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L7 9m5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg></div>
+        <h3>Unggah foto pisang</h3><p>Pilih foto dari galeri atau kamera HP. Format JPG, JPEG, atau PNG.</p>
+      </article>
+      <article class="card">
+        <div class="icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></div>
+        <h3>AI menganalisis gambar</h3><p>Model YOLO26 memindai gambar dan mencari pisang di dalamnya.</p>
+      </article>
+      <article class="card">
+        <div class="icon"><svg viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></svg></div>
+        <h3>Lihat hasil prediksi</h3><p>Hasil tampil sebagai label RIPE atau UNRIPE beserta skor keyakinan.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- DETEKSI -->
+  <section class="section detect" id="deteksi">
+    <div class="wrap">
+      <span class="script">coba sekarang</span>
+      <h2>Deteksi Pisang</h2>
+      <div class="card setup">
+        <div class="setup-head">
+          <h3>Model Setup</h3>
+          <span class="status-pill" id="modelStatus" data-state="waiting" role="status">Waiting for model initialization</span>
+        </div>
+        <div class="btn-row setup-row">
+          <label class="btn ghost" for="modelFile">Choose .onnx</label>
+          <input class="visually-hidden" type="file" id="modelFile" accept=".onnx">
+          <button class="btn primary" id="loadModelBtn" type="button">Load model</button>
+          <button class="btn ghost" id="defaultModelBtn" type="button">Use default</button>
+        </div>
+        <p class="note" id="modelHint">Model default: <code>models/best.onnx</code>. Atau pilih file <code>.onnx</code> lokal lalu tekan Load model. Semua proses berjalan di browser kamu.</p>
+      </div>
+      <div class="detect-grid">
+        <div class="card">
+          <label class="drop" id="drop" for="file">
+            <div class="drop-empty" id="dropEmpty">
+              <b>Unggah gambar pisang</b>
+              <small>JPG, JPEG, PNG · maks 5 MB</small>
+            </div>
+            <div class="preview-stage" id="stage" hidden>
+              <img id="preview" alt="Pratinjau foto pisang">
+              <video id="video" playsinline muted hidden></video>
+              <canvas id="overlay" aria-hidden="true"></canvas>
+            </div>
+          </label>
+          <input class="visually-hidden" type="file" id="file" accept="image/jpeg,image/png,.jpg,.jpeg,.png">
+          <div class="btn-row">
+            <label class="btn ghost" for="file">Pilih Gambar</label>
+            <button class="btn primary" id="detectBtn" type="button" disabled>Mulai Deteksi</button>
+            <button class="btn ghost" id="clearBtn" type="button" hidden>Hapus &amp; Coba Lagi</button>
+          </div>
+          <div class="btn-row cam-row">
+            <select class="select" id="camSource" aria-label="Sumber kamera">
+              <option value="environment">Back camera</option>
+              <option value="user">Front camera</option>
+            </select>
+            <button class="btn primary" id="startCamBtn" type="button">Start camera</button>
+            <button class="btn ghost" id="stopCamBtn" type="button" disabled>Stop camera</button>
+          </div>
+          <div class="slider-row">
+            <label for="conf">Confidence threshold</label>
+            <input type="range" id="conf" min="0.05" max="0.95" step="0.01" value="0.25">
+            <output id="confVal" for="conf">0.25</output>
+          </div>
+        </div>
+
+        <div class="card result" aria-live="polite">
+          <h3>Hasil Prediksi</h3>
+          <div class="stats" aria-label="Metrik">
+            <div><small>Detections</small><b id="mDet">0</b></div>
+            <div><small>Inference</small><b id="mInf">– ms</b></div>
+            <div><small>FPS</small><b id="mFps">–</b></div>
+          </div>
+          <div class="loading" id="loading" hidden><i class="spinner"></i><span>AI sedang menganalisis…</span></div>
+          <p class="msg" id="msg">Belum ada gambar. Unggah foto untuk memulai.</p>
+          <ul class="preds" id="preds"></ul>
+          <div class="companion">
+            <div class="viewer mini" id="companion"><div class="v-status" role="status">Menunggu hasil deteksi…</div></div>
+            <p class="companion-label" id="companionLabel">Model 3D menyesuaikan kelas dominan</p>
+          </div>
+          <p class="note">Warna hanyalah petunjuk visual dan bukan jaminan sempurna tingkat kematangan.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FITUR -->
+  <section class="section wrap" id="fitur">
+    <span class="script">fitur</span>
+    <h2>Dibuat sederhana, enak dipakai</h2>
+    <div class="grid three">
+      <article class="card"><h3>Deteksi kematangan pisang</h3><p>Membedakan pisang matang dan belum matang dari foto.</p></article>
+      <article class="card"><h3>Model pisang 3D</h3><p>Lihat contoh RIPE dan UNRIPE dari semua sisi.</p></article>
+      <article class="card"><h3>Unggah gambar mudah</h3><p>Satu ketukan untuk memilih foto, lengkap dengan pratinjau.</p></article>
+      <article class="card"><h3>Hasil mudah dipahami</h3><p>Label berwarna dan skor keyakinan yang jelas.</p></article>
+      <article class="card"><h3>Antarmuka responsif</h3><p>Nyaman di layar HP maupun PC.</p></article>
+      <article class="card"><h3>Desain ramah pengguna</h3><p>Bersih, ringan, dan tidak membingungkan.</p></article>
+    </div>
+  </section>
+
+  <!-- TENTANG -->
+  <section class="section wrap about" id="tentang">
+    <span class="script">tentang</span>
+    <h2>Proyek belajar AI &amp; computer vision</h2>
+    <p>BananaCheck adalah proyek pembelajaran teknologi AI dan computer vision untuk mengenali dua kategori pisang: matang dan belum matang.</p>
+    <div class="grid two">
+      <article class="card"><span class="chip ripe">RIPE</span><p>Pisang matang, umumnya berwarna kuning.</p></article>
+      <article class="card"><span class="chip unripe">UNRIPE</span><p>Pisang belum matang, umumnya berwarna hijau.</p></article>
+    </div>
+    <p class="note">Warna merupakan petunjuk visual dan bukan jaminan sempurna tingkat kematangan.</p>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap foot-grid">
+    <div>
+      <a class="logo" href="#beranda">
+        <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M10 20c4 22 28 34 48 16 2-2-1-4-4-2C38 48 20 40 16 18c-1-5-7-3-6 2Z" fill="#FFD93D" stroke="#4A3200" stroke-width="3" stroke-linejoin="round"/></svg>
+        BananaCheck
+      </a>
+      <p>Proyek sekolah RPL untuk mendeteksi tingkat kematangan pisang dengan computer vision.</p>
+    </div>
+    <ul>
+      <li><a href="#beranda">Beranda</a></li>
+      <li><a href="#cara-kerja">Cara Kerja</a></li>
+      <li><a href="#fitur">Fitur</a></li>
+      <li><a href="#tentang">Tentang</a></li>
+    </ul>
+    <div class="credits">
+      <h3>Kelompok Gerengse</h3>
+      <ul>
+        <li>Andran Maulana</li>
+        <li>Hoerul Anam</li>
+        <li>Messi Bima Putra</li>
+        <li>Rantam Muhammad Farhan</li>
+        <li>Muhammad Faisal Hasan</li>
+      </ul>
+    </div>
+  </div>
+  <p class="copy">Educational AI Project · Kelompok Gerengse · © <span id="year">2026</span> BananaCheck</p>
+</footer>
+</body>
+</html>
